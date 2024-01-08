@@ -8,5 +8,5 @@ urlpatterns = [
 ]
 
 router = DefaultRouter()
-router.register(r'product-list', views.ProductViewSet, basename='product-list')
+router.register(r'products', views.ProductViewSet, basename='products')
 urlpatterns += router.urls

@@ -1,10 +1,11 @@
 from rest_framework import viewsets, filters
-from rest_framework.permissions import IsAuthenticated
 from base.models import Product
 from .serializers import ProductSerializer
 from .paginations import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsVendor, ReadOnly
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -17,6 +18,4 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     ordering_fields = ['name', 'category', 'price']
 
-
-
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [(IsAuthenticated&IsVendor)|ReadOnly]
