@@ -1,6 +1,9 @@
 from rest_framework import serializers
-from base.models import Product, Order, OrderProducts
-from datetime import timedelta
+from base.models import (
+    Product, 
+    Order, 
+    OrderProducts,
+)
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -48,9 +51,10 @@ class OrderSerializer(serializers.ModelSerializer):
         for item in products_data:
             OrderProducts.objects.create(order = order, **item)
 
-
-
-
-
-
         return order
+    
+
+class OrderStatisticsSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    num_products = serializers.IntegerField()

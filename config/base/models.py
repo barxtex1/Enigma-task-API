@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-
+# --- Product Models ---
 class ProductCategory(models.Model):
     name = models.CharField(max_length=100)
 
@@ -29,6 +29,7 @@ class Product(models.Model):
         return self.name
 
 
+# --- Order Models ---
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
     PAYMENT_STATUS_COMPLETE = 'C'
@@ -70,4 +71,4 @@ class Order(models.Model):
 class OrderProducts(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField(default = 1)
