@@ -1,4 +1,5 @@
-from rest_framework import viewsets, filters, generics
+from rest_framework import viewsets, filters, generics, status
+from rest_framework.response import Response
 from base.models import Product, Order
 from .serializers import ProductSerializer, OrderSerializer
 from .paginations import CustomPagination
@@ -26,3 +27,17 @@ class OrderCreateView(generics.CreateAPIView):
     serializer_class = OrderSerializer
 
     permission_classes = [(IsAuthenticated&IsCustomer)|ReadOnly]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Customize the response data
+        response_data = {
+            'total price': serializer.instance.total_price,
+            'payment date': serializer.instance.payment_date.strftime("%d-%m-%Y, %H:%M:%S"),
+        }
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)

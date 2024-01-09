@@ -1,6 +1,9 @@
 from django.db import models
 from django_advance_thumbnail import AdvanceThumbnailField
 from django.contrib.auth.models import User
+from datetime import timedelta
+from django.utils import timezone
+
 
 
 class ProductCategory(models.Model):
@@ -37,7 +40,8 @@ class Order(models.Model):
         (PAYMENT_STATUS_FAILED, 'Failed'),
     ]
 
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    customer_name = models.CharField(max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     delivery_address = models.CharField(max_length=100)
     payment_status = models.CharField(max_length=50, 
                                       choices=PAYMENT_STATUS_CHOICES, 
@@ -45,10 +49,22 @@ class Order(models.Model):
     
     products = models.ManyToManyField(Product, through='OrderProducts')
     order_date = models.DateTimeField(auto_now_add=True)
+    payment_date = models.DateTimeField(null=True, blank=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank=True)
+
+
+    def save(self, *args, **kwargs):
+        # Set order_date if not already set
+        if not self.order_date:
+            self.order_date = timezone.now()
+        # Set payment_date to order_date + 5 days
+        self.payment_date = self.order_date + timedelta(days=5)
+
+        super().save(*args, **kwargs)
 
 
     def __str__(self):
-        return f"Order {self.id} by {self.customer.username}"
+        return f"Order {self.id} by {self.user.username}"
 
 
 class OrderProducts(models.Model):
