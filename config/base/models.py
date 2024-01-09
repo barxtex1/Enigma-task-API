@@ -1,5 +1,6 @@
 from django.db import models
 from django_advance_thumbnail import AdvanceThumbnailField
+from django.contrib.auth.models import User
 
 
 class ProductCategory(models.Model):
@@ -23,3 +24,34 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Order(models.Model):
+    PAYMENT_STATUS_PENDING = 'P'
+    PAYMENT_STATUS_COMPLETE = 'C'
+    PAYMENT_STATUS_FAILED = 'F'
+    
+    PAYMENT_STATUS_CHOICES = [
+        (PAYMENT_STATUS_PENDING, 'Pending'),
+        (PAYMENT_STATUS_COMPLETE, 'Complete'),
+        (PAYMENT_STATUS_FAILED, 'Failed'),
+    ]
+
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    delivery_address = models.CharField(max_length=100)
+    payment_status = models.CharField(max_length=50, 
+                                      choices=PAYMENT_STATUS_CHOICES, 
+                                      default='PAYMENT_STATUS_PENDING')
+    
+    products = models.ManyToManyField(Product, through='OrderProducts')
+    order_date = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"Order {self.id} by {self.customer.username}"
+
+
+class OrderProducts(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
