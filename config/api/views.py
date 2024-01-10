@@ -72,6 +72,7 @@ class OrderCreateView(generics.CreateAPIView):
 
 class OrderStatisticsView(generics.ListCreateAPIView):
     serializer_class = OrderStatisticsSerializer
+    permission_classes = [IsAuthenticated&IsVendor]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

@@ -4,4 +4,4 @@ from .models import ProductCategory, Product, Order, OrderProducts
 admin.site.register(ProductCategory)
 admin.site.register(Product)
 admin.site.register(Order)
-# admin.site.register(OrderProducts)
+admin.site.register(OrderProducts)
