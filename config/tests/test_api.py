@@ -14,7 +14,7 @@ class ProductTestCase(APITestCase):
         Load credentials for Users and get authentication tokens to check permissions
         '''
         # Load credentials for users
-        with open('tests/credentials.json', 'r') as file:
+        with open('credentials.json', 'r') as file:
             credentials = json.loads(file.read())["Credentials"]
         
         # Get Authentication tokens
@@ -164,7 +164,7 @@ class OrderTestCase(APITestCase):
         Load credentials for Users and get authentication tokens to check permissions
         '''
         # Load credentials for users
-        with open('tests/credentials.json', 'r') as file:
+        with open('credentials.json', 'r') as file:
             credentials = json.loads(file.read())["Credentials"]
         
         # Get Authentication tokens
