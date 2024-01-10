@@ -48,6 +48,8 @@ curl -X POST -d "username=user_username&password=user_password" http://localhost
 All access data is available on file: `tests/credentials.json`
 The authentication token will be used to access protected endpoints.
 
+> NOTE: Include the authentication token in the headers using the following format: `{'Authorization': 'Token [token_string]'}`
+
 ### Endpoints
 - Admin Panel:
     - Access at http://localhost:8000/admin/
