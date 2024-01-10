@@ -7,8 +7,12 @@ import tempfile
 from pathlib import Path
 
 
+
 class ProductTestCase(APITestCase):
     def setUp(self):
+        '''
+        Load credentials for Users and get authentication tokens to check permissions
+        '''
         # Load credentials for users
         with open('tests/credentials.json', 'r') as file:
             credentials = json.loads(file.read())["Credentials"]
@@ -29,6 +33,10 @@ class ProductTestCase(APITestCase):
 
 
     def test_list_product(self):
+        '''
+        Display a list of all products
+        - Access: all users, even not logged in
+        '''
         url = reverse('product-list')
 
         response = self.client.get(url)
@@ -36,6 +44,10 @@ class ProductTestCase(APITestCase):
 
 
     def test_retrieve_product(self):
+        '''
+        Display the details of the indicated product (pk/id)
+        - Access: all users, even not logged in
+        '''
         product_id = "1"
         url = reverse('product-detail', args=product_id)
         response = self.client.get(url)
@@ -44,16 +56,23 @@ class ProductTestCase(APITestCase):
 
     @override_settings(MEDIA_ROOT=Path(tempfile.gettempdir()))
     def test_create_product(self):
+        '''
+        Adding a Product(name, description, price, category, image)
+        Thumbnail image generates automatically
+        - Access: vendor
+        '''
         url = reverse('product-list')
-        vendor_token = self.users.get('vendor')
-        self.assertIsNotNone(vendor_token)
+        # Get an authorization token to access the endpoint
+        vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
+
+        # Perform valid POST with vendor token (with permission)
         headers = {
             'Authorization': f'Token {vendor_token}'
         }
         with open('media/default.jpg', 'rb') as image:
             data = {
-                'name': 'Laptop-request',
-                'description': 'Test laptop',
+                'name': 'Laptop Asus',
+                'description': 'Laptop specification',
                 'price': 2500,
                 'category': "Laptops",
                 'image': image
@@ -61,13 +80,32 @@ class ProductTestCase(APITestCase):
             response = self.client.post(url, data, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        # Perform invalid POST with customer token (without permission)
+        headers['Authorization'] = f'Token {customer_token}'
+        with open('media/default.jpg', 'rb') as image:
+            data = {
+                'name': 'Laptop Asus',
+                'description': 'Laptop specification',
+                'price': 2500,
+                'category': "Laptops",
+                'image': image
+            }
+            response = self.client.post(url, data, headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
     @override_settings(MEDIA_ROOT=Path(tempfile.gettempdir()))
     def test_update_product(self):
+        '''
+        Update a Product(name, description, price, category, image)
+        - Access: vendor
+        '''
         product_id = "1"
         url = reverse('product-detail', args=product_id)
-        vendor_token = self.users.get('vendor')
-        self.assertIsNotNone(vendor_token)
+        # Get an authorization token to access the endpoint
+        vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
+
+        # Perform valid PUT with vendor token (with permission)
         headers = {
             'Authorization': f'Token {vendor_token}'
         }
@@ -82,20 +120,49 @@ class ProductTestCase(APITestCase):
             response = self.client.put(url, data, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Perform invalid PUT with customer token (without permission)
+        headers['Authorization'] = f'Token {customer_token}'
+        with open('media/default.jpg', 'rb') as image:
+            data = {
+                'name': 'Laptop-updated',
+                'description': 'Test laptop updated',
+                'price': 3000,
+                'category': "Laptops",
+                'image': image
+            }
+            response = self.client.put(url, data, headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     
     def test_delete_product(self):
+        '''
+        Delete a Product(name, description, price, category, image)
+        - Access: vendor
+        '''
         product_id = "1"
         url = reverse('product-detail', args=product_id)
-        vendor_token = self.users.get('vendor')
+        # Get an authorization token to access the endpoint
+        vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
+
+        # Perform valid DELETE with vendor token (with permission)
         headers = {
             'Authorization': f'Token {vendor_token}'
         }
         response = self.client.delete(url, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+        # Perform invalid DELETE with customer token (without permission)
+        headers['Authorization'] = f'Token {customer_token}'
+        response = self.client.delete(url, headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
 
 class OrderTestCase(APITestCase):
     def setUp(self):
+        '''
+        Load credentials for Users and get authentication tokens to check permissions
+        '''
         # Load credentials for users
         with open('tests/credentials.json', 'r') as file:
             credentials = json.loads(file.read())["Credentials"]
@@ -116,9 +183,17 @@ class OrderTestCase(APITestCase):
 
 
     def test_create_order(self):
+        '''
+        Create an Order(customer_name, delivery_address, products) -> total price, payment date
+        - Access: customer
+        'products' variable is a List of dictonary:
+        {'product': pk/id, 'quantity': int}
+        '''
         url = reverse('order-product')
-        customer_token = self.users.get('customer')
-        self.assertIsNotNone(customer_token)
+        # Get an authorization token to access the endpoint
+        vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
+
+        # Perform valid POST with customer token (with permission)
         headers = {
             'Authorization': f'Token {customer_token}',
         }
@@ -131,14 +206,33 @@ class OrderTestCase(APITestCase):
             ]
         }
         response = self.client.post(url, data, headers=headers, format='json')
-        # print(f"Response after POST order:\n{response.json()}")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Perform invalid POST with vendor token (without permission)
+        headers['Authorization'] = f'Token {vendor_token}'
+        response = self.client.post(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     
     def test_order_statistics(self):
+        '''
+        Statistics of the most frequently ordered products
+        - Access: vendor
+        Input: start_date, end_date, num_products
+        Output: List of most frequently ordered products with number of items
+        [
+            {
+                'id': pk/id,
+                'name': product-name:str,
+                'count': int
+            },
+        ]
+        '''
         url = reverse('statistics-most-ordered')
-        vendor_token = self.users.get('vendor')
-        self.assertIsNotNone(vendor_token)
+        # Get an authorization token to access the endpoint
+        vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
+
+        # Perform valid POST with vendor token (with permission)
         headers = {
             'Authorization': f'Token {vendor_token}',
         }
@@ -148,5 +242,9 @@ class OrderTestCase(APITestCase):
             'num_products': 5
         }
         response = self.client.post(url, data, headers=headers, format='json')
-        print(f"Response after POST statistics most ordered:\n{response.json()}")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Perform invalid POST with customer token (without permission)
+        headers['Authorization'] = f'Token {customer_token}'
+        response = self.client.post(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
