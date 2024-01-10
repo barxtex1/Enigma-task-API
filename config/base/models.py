@@ -17,7 +17,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey("base.ProductCategory", on_delete=models.CASCADE)
     image = models.ImageField(default='default.jpg', upload_to='products_pics/')
     thumbnail = AdvanceThumbnailField(source_field='image', 
                                       upload_to='thumbnails/', 
@@ -67,6 +67,6 @@ class Order(models.Model):
 
 
 class OrderProducts(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey("base.Product", on_delete=models.CASCADE)
+    order = models.ForeignKey("base.Order", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default = 1)

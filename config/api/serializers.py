@@ -1,15 +1,33 @@
 from rest_framework import serializers
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import smart_text
 from base.models import (
     Product, 
+    ProductCategory,
     Order, 
     OrderProducts,
 )
 
 
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    category = CreatableSlugRelatedField(
+        slug_field='name',
+        queryset=ProductCategory.objects.all()
+    )
+
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['name', 'description', 'price', 'category', 'image']
 
 
 class OrderProductsSerializer(serializers.ModelSerializer):
@@ -55,6 +73,6 @@ class OrderSerializer(serializers.ModelSerializer):
     
 
 class OrderStatisticsSerializer(serializers.Serializer):
-    start_date = serializers.DateField()
-    end_date = serializers.DateField()
+    start_date = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    end_date = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     num_products = serializers.IntegerField()

@@ -21,6 +21,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
+    ordering = ['-id']
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['name', 'category', 'description', 'price']
