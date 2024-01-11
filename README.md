@@ -8,6 +8,7 @@ Before you begin, ensure you have met the following requirements:
 - SQLite 3
 
 ## Technology Stack
+- Python 3.10.12
 - Django 5.0.1
 - Django Rest Framework 3.14.0
 - SQLite 3
