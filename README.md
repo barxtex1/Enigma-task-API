@@ -29,7 +29,11 @@ venv\Scripts\activate (for Windows users)
 ```
 pip install -r requirements.txt
 ```
-4. Go to the project directory and run server in your local network:
+4. Set the DEBUG environment variable:
+```
+export DEBUG=TRUE
+```
+5. Go to the project directory and run server in your local network:
 ```
 cd config
 python manage.py runserver
