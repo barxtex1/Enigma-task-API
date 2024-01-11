@@ -48,8 +48,8 @@ class ProductTestCase(APITestCase):
         Display the details of the indicated product (pk/id)
         - Access: all users, even not logged in
         '''
-        product_id = "1"
-        url = reverse('product-detail', args=product_id)
+        product_id = "13"
+        url = reverse('product-detail', args=[product_id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -100,8 +100,8 @@ class ProductTestCase(APITestCase):
         Update a Product(name, description, price, category, image)
         - Access: vendor
         '''
-        product_id = "1"
-        url = reverse('product-detail', args=product_id)
+        product_id = "13"
+        url = reverse('product-detail', args=[product_id])
         # Get an authorization token to access the endpoint
         vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
 
@@ -111,8 +111,8 @@ class ProductTestCase(APITestCase):
         }
         with open('media/default.jpg', 'rb') as image:
             data = {
-                'name': 'Laptop-updated',
-                'description': 'Test laptop updated',
+                'name': 'HP Pavilion x360',
+                'description': 'HP Pavilion x360 updated',
                 'price': 3000,
                 'category': "Laptops",
                 'image': image
@@ -139,8 +139,8 @@ class ProductTestCase(APITestCase):
         Delete a Product(name, description, price, category, image)
         - Access: vendor
         '''
-        product_id = "1"
-        url = reverse('product-detail', args=product_id)
+        product_id = "9"
+        url = reverse('product-detail', args=[product_id])
         # Get an authorization token to access the endpoint
         vendor_token, customer_token = self.users.get('vendor'), self.users.get('customer')
 
@@ -201,8 +201,8 @@ class OrderTestCase(APITestCase):
             'customer_name': 'Jan Kowalski',
             'delivery_address': '1234 Elm Street',
             'products': [
-                {"product": 2, "quantity": 1}, 
-                {"product": 3, "quantity": 2}
+                {"product": 18, "quantity": 1}, 
+                {"product": 11, "quantity": 2}
             ]
         }
         response = self.client.post(url, data, headers=headers, format='json')

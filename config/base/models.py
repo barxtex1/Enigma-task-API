@@ -63,10 +63,13 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return f"Order {self.id} by {self.user.username}"
+        return f"Order nr {self.id} by {self.user.username}"
 
 
 class OrderProducts(models.Model):
     product = models.ForeignKey("base.Product", on_delete=models.CASCADE)
     order = models.ForeignKey("base.Order", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default = 1)
+
+    def __str__(self) -> str:
+        return f"Order nr {self.order.id}, Products nr {self.product.id}, quantity: {self.quantity}"

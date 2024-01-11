@@ -28,15 +28,13 @@ venv\Scripts\activate (for Windows users)
 ```
 pip install -r requirements.txt
 ```
-4. Go to the project directory and run migrations:
+4. Go to the project directory and run server in your local network:
 ```
-python manage.py makemigrations
-python manage.py migrate
-```
-5. Run server in your local network:
-```
+cd config
 python manage.py runserver
 ```
+> NOTE: You don't need to run the migrations because the db are already provided
+
 The project will now be running at [localhost](http://localhost:8000/)
 
 ## Usage
